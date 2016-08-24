@@ -22,17 +22,36 @@ function initMap() {
         marker: markers
     });
 
+    function pinSymbol(color) {
+        return {
+            path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z',
+            fillColor: color,
+            fillOpacity: 1,
+            strokeColor: '#000',
+            strokeWeight: 1,
+            scale: 1
+        };
+    }
+
     function addMarkers(){
-        var marker = new google.maps.Marker({
+        var marker =  new MarkerWithLabel({
             position: {lat:  51.103316 + index*0.000020 , lng: 17.028387 +index*0.000020},
-            label: index.toString(),
+            labelContent: index.toString(),
+            labelClass: "labels",
+            labelAnchor: new google.maps.Point(9, 35),
+            labelInBackground: false,
+            icon: pinSymbol('red'),
             map: map,
             draggable: true,
             title: 'Click to zoom'
         });
-        var marker2 = new google.maps.Marker({
+        var marker2 =  new MarkerWithLabel({
             position: {lat: 51.103313 +(index)*0.000020 , lng: 17.028405 +(index)*0.000020},
-            label: (index++).toString(),
+            labelContent: (index++).toString(),
+            labelClass: "labels",
+            labelAnchor: new google.maps.Point(9, 35),
+            labelInBackground: false,
+            icon: pinSymbol('red'),
             map: map,
             title: 'Click to zoom',
             draggable: true
