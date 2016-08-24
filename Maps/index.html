@@ -5,13 +5,13 @@
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
 
-    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
-    <script type="text/javascript" src="js/jquery.min.js"></script>
-    <script type="text/javascript" src="js/jquery.gomap-1.3.3.min.js"></script>
-    <script src="lib/query.js"></script>
-    <!--<script src="https://maps.googleapis.com/maps/api/js?key= =initMap"-->
-    <!--async defer></script>-->
-    <!--<script src="lib/marker.js"></script>-->
+    <!--<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>-->
+    <!--<script type="text/javascript" src="js/jquery.min.js"></script>-->
+    <!--<script type="text/javascript" src="js/jquery.gomap-1.3.3.min.js"></script>-->
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&libraries=geometry"></script>
+
+    <script src="lib/marker.js"></script>
+    <!--<script src="lib/query.js"></script>-->
 
     <style>
         html, body {
@@ -21,18 +21,31 @@
         }
         #map {
             height: 100%;
+            width: 50%;
+            left: 50%;
+
         }
-
-
+        #Okno {
+            position: absolute;
+            top: 10px;
+            z-index: 5;
+            background-color: #fff;
+            padding: 5px;
+            border: 1px solid #999;
+            text-align: left ;
+            font-family: 'Roboto','sans-serif';
+            line-height: 30px;
+            padding-left: 10px;
+        }
         #floating-panel {
             position: absolute;
             top: 10px;
-            left: 25%;
             z-index: 5;
             background-color: #fff;
             padding: 5px;
             border: 1px solid #999;
             text-align: center;
+            left: 25%;
             font-family: 'Roboto','sans-serif';
             line-height: 30px;
             padding-left: 10px;
@@ -41,12 +54,21 @@
 </head>
 <body>
 <div id="map"></div>
+
 <div id="floating-panel">
-    <input onclick="clearMarkers();" type=button value="Hide Markers">
-    <input onclick="showMarkers();" type=button value="Show All Markers">
-    <input onclick="addMarker();" type=button value="Add Markers">
-    <input onclick="deleteMarkers();" type=button value="Delete Markers">
+    <input id="info" type=button value="Show distance">
+    <input id="add" type=button value="Add Window">
 </div>
+<div id="Okno">
+    <p>Okno 1</p>
+    <p>wspolrzedne poczatku okna:</p> <div id="w1"> </div>
+    <p>wspolrzedne konca okna:</p>  <div id="w2"></div>
+    <p>dlugosc okna:</p>  <div id="od"></div>
+</div>
+
+<script>
+    initMap();
+</script>
 
 </body>
 </html>
