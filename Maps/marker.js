@@ -39,68 +39,99 @@ function initMap() {
     function addWindow() {
         var marker = new MarkerWithLabel({
             position: {lat: 51.103316 + index * 0.000020, lng: 17.028387 + index * 0.000020},
-            labelContent: index.toString(),
+            labelContent: (index+1).toString(),
             labelClass: "labels",
             labelAnchor: new google.maps.Point(9, 35),
             labelInBackground: false,
             icon: pinSymbol('red'),
             map: map,
             draggable: true,
-            title: 'Click to zoom'
+            title: 'Info:'
+
         });
+
         var marker2 = new MarkerWithLabel({
             position: {lat: 51.103313 + (index) * 0.000020, lng: 17.028405 + (index) * 0.000020},
-            labelContent: (index).toString(),
+            labelContent: (index+1).toString(),
             labelClass: "labels",
             labelAnchor: new google.maps.Point(9, 35),
             labelInBackground: false,
             icon: pinSymbol('red'),
             map: map,
-            title: 'Click to zoom',
+            title: 'Info:',
             draggable: true
         });
+
         markers.push(marker);
         markers.push(marker2);
-        dataSource.add({
-            id:index,
+
+        addInfoWindow(marker,marker2,index);
+
+
+        dataSource1.add({
+            id:index+1,
             wsp:marker.position,
             wsk:marker2.position,
             od: calcDistance(markers[index*2].position, markers[(index*2)+1].position),
             zn: "+"
-
         });
-        // dataSource.update();
         index++;
-        for (var j=0; j<(index/2 +1) ; j++) {
-            dataSource.pushUpdate({
-                id: j,
-                wsp:markers[j*2].position,
-                wsk:markers[(j*2) +1].position,
-                od : calcDistance(markers[j*2].position, markers[(j*2)+1].position)
-            });
 
-        }
-      //  refresh()
     }
 
+    function addInfoWindow(marker,marker2,id1) {
+        google.maps.event.addListener(marker, 'click', function () {
+            var infoWindow = new google.maps.InfoWindow({
+                content: '<div id="content">'+
+                '<div id="siteNotice">'+
+                '</div>'+
+                '<h1 id="firstHeading" class="firstHeading">Okno '+ id1 +'</h1>'+
+                '<div id="bodyContent">'+
+                '<p> Szeroksoc okna :' + calcDistance(marker.position, marker2.position) +' [m]' +
+                 '</div>' +'</div>'
+            });
+            infoWindow.open(map, marker);
+        });
 
-    // function refresh(){
-    //     dataSource.refresh();
-    //     // for (var j=0; j<dataSource.length(); j++) {
-    //     //     dataSource[j].wsp = markers[j*2].position;
-    //     //     dataSource[j].wsk = markers[(j*2) +1].position;
-    //     //     dataSource[j].od = calcDistance(markers[j*2].position, markers[(j*2)+1].position);
-    //     // }
-    //
-    // }
+        google.maps.event.addListener(marker2, 'click', function () {
+            var infoWindow2 = new google.maps.InfoWindow({
+                content: '<div id="content">'+
+                '<div id="siteNotice">'+
+                '</div>'+
+                '<h1 id="firstHeading" class="firstHeading">Okno '+ id1 +'</h1>'+
+                '<div id="bodyContent">'+
+                '<p> Szeroksoc okna :' + calcDistance(marker.position, marker2.position) +' [m]' +
+                '</div>' +'</div>'
+            });
+            infoWindow2.open(map, marker2);
+        });
+    }
+
+    function refresh(){
+        for (var j=0; j<(index) ; j++) {
+            dataSource1.pushUpdate({
+                id: j+1,
+                wsp: markers[(j*2)].position,
+                wsk: markers[(j*2)+1].position,
+                od: calcDistance(markers[j*2].position, markers[(j*2)+1].position),
+                zn: '+'
+            });
+        }
+    }
+    
 
     function calcDistance(p1, p2) {
-        return (google.maps.geometry.spherical.computeDistanceBetween(p1, p2)).toFixed(2);
+        var od = google.maps.geometry.spherical.computeDistanceBetween(p1, p2).toFixed(2);
+        return od;
     }
 
     document.getElementById("add").onclick = function () {
         addWindow();
-        // dataSource.refresh();
+        //Po dodaniu nowgo elementu uaktualniane sa wartosci w gridzie
+        refresh();
+    };
+    document.getElementById("refresh").onclick = function () {
+        refresh();
     };
 
 
@@ -110,38 +141,25 @@ function initMap() {
         document.getElementById("od").innerHTML = calcDistance(markers[0].position, markers[1].position);
 
     };
-    var dataSource = new kendo.data.DataSource(
-        ({
-            data: [{
-                id: '',
-                wsp: '',
-                wsk: '',
-                od: '',
-                zn: ''
-            }]
-            // update: function (e) {
-            //     // batch is enabled
-            //     //var updateItems = e.data.models;
-            //     // batch is disabled
-            //     var updatedItem = e.data;
-            //
-            //     // save the updated item to the original datasource
-            //     // ...
-            //
-            //     // on success
-            //     e.success();
-            //     // on failure
-            //     //e.error("XHR response", "status code", "error message");
-            // }
+    var dataSource1 = new kendo.data.DataSource({
+            schema: {
+                model: {
+                    id: '',
+                    wsp: '',
+                    wsk: '',
+                    od: '',
+                    zn: ''
+                }
+            }
+        });
 
-        })
-    );
-    
+
+
 
 
     $(document).ready(function () {
         $("#grid").kendoGrid({
-            dataSource: dataSource,
+            dataSource: dataSource1,
             height: 550,
             groupable: true,
             sortable: true,
@@ -168,6 +186,4 @@ function initMap() {
                 }]
         });
     });
-
 }
-
