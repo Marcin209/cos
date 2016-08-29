@@ -2,11 +2,13 @@
  * Created by msobczak on 8/23/2016.
  */
 
-
 function initMap() {
+    var elevation = 0;
+    var azimut = 0 ;
+
     //Tablica przechowujaca markery
     var markers = [];
-    
+
     // Nazwy markerow w postaci liter z alfabetu Opcja
     // var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     // index nadaje label markerom
@@ -65,7 +67,7 @@ function initMap() {
         markers.push(marker);
         markers.push(marker2);
 
-        addInfoWindow(marker,marker2,index);
+        addInfoWindow(markers[index*2],markers[(index*2)+1],index);
 
 
         dataSource1.add({
@@ -73,9 +75,84 @@ function initMap() {
             wsp:marker.position,
             wsk:marker2.position,
             od: calcDistance(markers[index*2].position, markers[(index*2)+1].position),
-            zn: "+"
+            zn: znak(markers[index*2],markers[(index*2)+1])
         });
         index++;
+
+    }
+    function loadJSON(url,callbacks) {
+        $.ajax({
+            type: 'GET',
+            url: url,
+            dataType: "json",
+
+            success: function (json_obj) {
+
+                elevation = json_obj.Elevation;
+                azimut =json_obj.Azimut;
+                callbacks.ok(data);
+            },
+            error: function () {
+                callbacks.nie();
+               // console.log("nie");
+            }
+        });
+    }
+
+    var callbacks = {
+        ok: function (data) {
+            dzialaj(data);
+        },
+        nie: function () {
+            console.log('error');
+        }
+    };
+    
+    function dzialaj(json_obj)
+    {    elevation=json_obj.Elevation;
+         azimut=json_obj.Azimut;
+        //console.log(json_obj);
+    }
+
+
+    function znak(marker,marker2)
+    {
+        var lng= marker.getPosition().lng();
+        var lat = marker.getPosition().lat();
+
+        var url ="http://compute-informations-about-sun.azurewebsites.net/api/SunVector/GetSunVector?date=2016-08-13T08%3A11%3A12%2B02%3A00&latitude="+lat+ "&longitude="+lng;
+        loadJSON(url,callbacks);
+        var elevation_mark=elevation;
+        var azimut_mark=azimut;
+
+        //dalej rozwijamy o dwwa markery
+        var lng2= marker2.getPosition().lng();
+        var lat2 = marker2.getPosition().lat();
+        var url2 ="http://compute-informations-about-sun.azurewebsites.net/api/SunVector/GetSunVector?date=2016-08-13T08%3A11%3A12%2B02%3A00&latitude="+lat2+ "&longitude="+lng2;
+        loadJSON(url2,callbacks);
+        var elevation_mark2=elevation;
+        var azimut_mark2=azimut;
+
+
+        //
+        // console.log("elewacja 1 : "+elevation_mark);
+        // console.log("azimut 1 :" +azimut_mark);
+
+        // var url = "http://compute-informations-about-sun.azurewebsites.net/api/SunVector?date=2016-08-13T08%3A11%3A12%2B02%3A00&latitude=57&longitude=12";
+        //
+        //
+        //
+        // console.log("elewacja 2 : "+elevation_mark2);
+        // console.log("azimut 2 :" +azimut_mark2);
+
+        if(elevation_mark >= 0.0 && elevation_mark2 >= 0.0){
+            console.log("el 1 "+elevation_mark+" el 2 "+elevation_mark2+ " +" );
+            return '+';
+        }
+        else
+            console.log("el 1 "+elevation_mark+" el 2 "+elevation_mark2+ "-" );
+
+            return '-';
 
     }
 
@@ -87,7 +164,8 @@ function initMap() {
                 '</div>'+
                 '<h1 id="firstHeading" class="firstHeading">Okno '+ id1 +'</h1>'+
                 '<div id="bodyContent">'+
-                '<p> Szeroksoc okna :' + calcDistance(marker.position, marker2.position) +' [m]' +
+                '<p> Szeroksoc okna :' + calcDistance(marker.position, marker2.position) +' [m]</p>' +
+                '<p> Wektor slonca : ' + znak(marker,marker2) + '</p>' +
                  '</div>' +'</div>'
             });
             infoWindow.open(map, marker);
@@ -101,11 +179,18 @@ function initMap() {
                 '<h1 id="firstHeading" class="firstHeading">Okno '+ id1 +'</h1>'+
                 '<div id="bodyContent">'+
                 '<p> Szeroksoc okna :' + calcDistance(marker.position, marker2.position) +' [m]' +
+                '<p> Wektor slonca : ' + znak(marker,marker2) + '</p>' +
                 '</div>' +'</div>'
             });
             infoWindow2.open(map, marker2);
         });
     }
+    //odswierzanie wartosci z grida
+    // $(document).ready(function () {
+    //     setInterval(function () {
+    //         refresh();
+    //     }, 5000);
+    // });
 
     function refresh(){
         for (var j=0; j<(index) ; j++) {
@@ -114,7 +199,7 @@ function initMap() {
                 wsp: markers[(j*2)].position,
                 wsk: markers[(j*2)+1].position,
                 od: calcDistance(markers[j*2].position, markers[(j*2)+1].position),
-                zn: '+'
+                zn: znak(markers[(j*2)],markers[(j*2)+1])
             });
         }
     }
@@ -133,12 +218,13 @@ function initMap() {
     document.getElementById("refresh").onclick = function () {
         refresh();
     };
+    function sprawdz() {
 
+
+    }
 
     document.getElementById("info").onclick = function () {
-        document.getElementById("w1").innerHTML = markers[0].position;
-        document.getElementById("w2").innerHTML = markers[1].position;
-        document.getElementById("od").innerHTML = calcDistance(markers[0].position, markers[1].position);
+      sprawdz();
 
     };
     var dataSource1 = new kendo.data.DataSource({
