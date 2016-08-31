@@ -7,42 +7,7 @@ var elevation ;
 var azimut ;
 var obj;
 
-function loadJSON(url) {
 
-    $.ajax({
-        type: 'GET',
-        url: url,
-        dataType: "json",
-
-        success: function (json_obj) {
-            //  elevation = json_obj.Elevation;
-            //azimut =json_obj.Azimut;
-           callbacks.ok(json_obj);
-           // obj = json_obj;
-           //  cb(json_obj);
-
-        },
-        error: function () {
-           callbacks.nie();
-            // console.log("nie");
-        }
-
-    });
-
-}
-
-//
-var callbacks = {
-    ok: function (data) {
-        elevation=data.Elevation;
-        azimut=data.Azimut;
-
-        console.log(elevation);
-    },
-    nie: function () {
-        console.log('error');
-    }
-};
 
 // function dzialaj(json_obj)
 // {
@@ -74,6 +39,68 @@ function initMap() {
         marker: markers
     });
 
+
+
+
+
+
+
+    function loadJSON(url,id) {
+        // console.log(id);
+        $.ajax({
+            type: 'GET',
+            url: url,
+            dataType: "json",
+            idndex:id,
+
+            success: function (json_obj,index) {
+                console.log(json_obj);
+                //    console.log(id);
+                //  console.log(index);
+                callbacks.ok(json_obj,id);
+
+            },
+            error: function () {
+                callbacks.nie();
+
+            }
+
+        });
+
+    }
+
+//
+    var callbacks = {
+        ok: function (data,id) {
+            // elevation=data.Elevation;
+           // console.log(id);
+
+          // console.log(data.Elevation);
+            // console.log(elevation);
+            if (data.Elevation >= 0.0) {
+                console.log("Plus" );
+                dataSource1.pushUpdate({
+                    id: id,
+                    zn: '+'
+                });
+            }
+            else {
+                console.log("minus");
+                dataSource1.pushUpdate({
+                    id: id,
+                    // wsp: markers[(id*2)].position,
+                    // wsk: markers[(id*2)+1].position,
+                    // od: calcDistance(markers[id*2].position, markers[(id*2)+1].position),
+                    zn: '-'
+
+                });
+            }
+        },
+        nie: function () {
+            console.log('error');
+        }
+    };
+
     //Funkcja tworzaca nasz Pin Markera na mapie
     function pinSymbol(color) {
         return {
@@ -90,7 +117,7 @@ function initMap() {
     function addWindow() {
         var marker = new MarkerWithLabel({
             position: {lat: 51.103316 + index * 0.000020, lng: 17.028387 + index * 0.000020},
-            labelContent: (index+1).toString(),
+            labelContent: (index).toString(),
             labelClass: "labels",
             labelAnchor: new google.maps.Point(9, 35),
             labelInBackground: false,
@@ -103,7 +130,7 @@ function initMap() {
 
         var marker2 = new MarkerWithLabel({
             position: {lat: 51.103313 + (index) * 0.000020, lng: 17.028405 + (index) * 0.000020},
-            labelContent: (index+1).toString(),
+            labelContent: (index).toString(),
             labelClass: "labels",
             labelAnchor: new google.maps.Point(9, 35),
             labelInBackground: false,
@@ -120,7 +147,7 @@ function initMap() {
 
 
         dataSource1.add({
-            id:index+1,
+            id:index,
             wsp:marker.position,
             wsk:marker2.position,
             od: calcDistance(markers[index*2].position, markers[(index*2)+1].position),
@@ -129,29 +156,29 @@ function initMap() {
         index++;
 
     }
-    function znak(marker, marker2) {
+    function znak(marker, marker2,id) {
             var lng = marker.getPosition().lng();
             var lat = marker.getPosition().lat();
             var elevation_mark ;
 
             var url = "http://compute-informations-about-sun.azurewebsites.net/api/SunVector/GetSunVector?date=2016-08-13T08%3A11%3A12%2B02%3A00&latitude=" + lat + "&longitude=" + lng;
-             loadJSON(url);
-            elevation_mark = elevation;
+             console.log(url);
+             loadJSON(url,id);
+           // elevation_mark = elevation;
             //var azimut_mark = azimut;
 
-            console.log(url);
-            console.log(elevation_mark);
-
+        //    console.log(url);
+        //   console.log(elevation_mark);
 
             //dalej rozwijamy o dwwa markery
-            var lng2 = marker2.getPosition().lng();
-            var lat2 = marker2.getPosition().lat();
-            var url2 = "http://compute-informations-about-sun.azurewebsites.net/api/SunVector/GetSunVector?date=2016-08-13T08%3A11%3A12%2B02%3A00&latitude=" + lat2 + "&longitude=" + lng2;
-            loadJSON(url2);
-              var elevation_mark2 = elevation;
-           // var azimut_mark2 = azimut;
-            console.log(url2);
-            console.log(elevation_mark2);
+           //  var lng2 = marker2.getPosition().lng();
+           //  var lat2 = marker2.getPosition().lat();
+           //  var url2 = "http://compute-informations-about-sun.azurewebsites.net/api/SunVector/GetSunVector?date=2016-08-13T08%3A11%3A12%2B02%3A00&latitude=" + lat2 + "&longitude=" + lng2;
+           //  loadJSON(url2,id);
+           //    var elevation_mark2 = elevation;
+           // // var azimut_mark2 = azimut;
+           //  console.log(url2);
+           //  console.log(elevation_mark2);
 
 
             //
@@ -162,16 +189,6 @@ function initMap() {
             //
             // console.log("elewacja 2 : "+elevation_mark2);
             // console.log("azimut 2 :" +azimut_mark2);
-
-
-            if (elevation_mark >= 0.0 && elevation_mark2 >= 0.0) {
-                console.log("el 1 " + elevation_mark + " el 2 " + elevation_mark2 + " +");
-                return '+';
-            }
-            else
-                console.log("el 1 " + elevation_mark + " el 2 " + elevation_mark2 + "-");
-
-            return '-';
 
         }
 
@@ -208,11 +225,11 @@ function initMap() {
     function refresh(){
         for (var j=0; j<(index) ; j++) {
             dataSource1.pushUpdate({
-                id: j+1,
+                id: j,
                 wsp: markers[(j*2)].position,
                 wsk: markers[(j*2)+1].position,
                 od: calcDistance(markers[j*2].position, markers[(j*2)+1].position),
-                zn: znak(markers[(j*2)],markers[(j*2)+1])
+                zn: znak(markers[(j*2)],markers[(j*2)+1],j)
             });
         }
     }
